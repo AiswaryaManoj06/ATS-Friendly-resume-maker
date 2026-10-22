@@ -1,0 +1,1298 @@
+<div class="resume-builder-wrapper">
+  <!-- Top App Navigation / Header Bar (Hidden on print) -->
+  <header class="app-header no-print">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">ResumeCraft</h1>
+          <p class="brand-subtitle">ATS-Optimized Reactive Resume Builder</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeView === 'preview'"
+          (click)="activeView = 'preview'"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          Formatted Resume
+        </button>
+
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeView === 'form'"
+          (click)="activeView = 'form'"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit Form
+        </button>
+
+        <button
+          type="button"
+          class="tab-btn ats-tab-btn"
+          [class.active]="activeView === 'ats'"
+          (click)="activeView = 'ats'"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="m4.93 4.93 4.24 4.24"></path>
+            <path d="m14.83 9.17 4.24-4.24"></path>
+            <path d="m14.83 14.83 4.24 4.24"></path>
+            <path d="m9.17 14.83-4.24 4.24"></path>
+            <circle cx="12" cy="12" r="4"></circle>
+          </svg>
+          ATS Optimizer
+          @if (atsResult) {
+            <span class="ats-pill" [style.background-color]="atsResult.ratingColor">
+              {{ atsResult.score }}%
+            </span>
+          }
+        </button>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button type="button" class="btn-demo" (click)="fillSampleData()" title="Autofill Aiswarya Manoj Template">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Autofill Template
+        </button>
+
+        <button type="button" class="btn-print" (click)="printResume()" title="Print or Save PDF">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Print / PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="main-content">
+
+    <!-- SUBMISSION CONFIRMATION MESSAGE (When Submitted) -->
+    @if (showSuccessMessage) {
+      <div class="confirmation-banner no-print animate-slide-down">
+        <div class="confirmation-banner-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="confirmation-banner-text">
+          <h4>🎉 Resume Submitted Successfully!</h4>
+          <p>
+            The reactive form has been reset for the next submission as required.
+            Your formatted resume is generated below in the exact requested template!
+          </p>
+        </div>
+        <button type="button" class="btn-banner-close" (click)="dismissConfirmation()">
+          &times;
+        </button>
+      </div>
+    }
+
+    <!-- ======================================================== -->
+    <!-- VIEW 1: EXACT RESUME FORMAT (Matching Screenshot Template) -->
+    <!-- ======================================================== -->
+    @if (activeView === 'preview') {
+      <div class="resume-view-wrapper">
+        <div class="resume-actions-toolbar no-print">
+          <div class="toolbar-info">
+            <span class="preview-badge">Exact Template Mode</span>
+            <span class="toolbar-hint">Rendered in the exact styling, font hierarchy, and layout of the provided resume.</span>
+          </div>
+          <div class="toolbar-btns">
+            <button type="button" class="btn-tool" (click)="activeView = 'ats'">
+              🎯 Check ATS Match
+            </button>
+            <button type="button" class="btn-tool" (click)="activeView = 'form'">
+              ✏️ Edit Information
+            </button>
+            <button type="button" class="btn-tool primary" (click)="printResume()">
+              🖨️ Download / Print PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- The Printable Exact Resume Sheet -->
+        <div class="resume-paper" id="resume-document">
+          <!-- RESUME HEADER -->
+          <div class="res-header">
+            <div class="res-photo-wrap">
+              @if (submittedResumeData?.candidatePicture || candidatePicturePreview) {
+                <img
+                  [src]="submittedResumeData?.candidatePicture || candidatePicturePreview"
+                  alt="Candidate"
+                  class="res-photo-img"
+                />
+              } @else {
+                <div class="res-photo-placeholder">Photo</div>
+              }
+            </div>
+
+            <div class="res-header-details">
+              <h1 class="res-candidate-name">
+                {{ (submittedResumeData?.firstName || 'Aiswarya') }} {{ (submittedResumeData?.lastName || 'Manoj') }}
+              </h1>
+
+              <div class="res-contact-row">
+                <span class="res-contact-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                  {{ (submittedResumeData?.phone || '+91 7012370686') }}
+                </span>
+                <span class="res-separator">—</span>
+                <span class="res-contact-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  {{ (submittedResumeData?.email || 'aiswaryamanoj061@gmail.com') }}
+                </span>
+              </div>
+
+              <div class="res-contact-row">
+                <span class="res-contact-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  {{ (submittedResumeData?.address?.houseNo || 'Kunnel House') }},
+                  {{ (submittedResumeData?.address?.street || 'Kattappana') }},
+                  {{ (submittedResumeData?.address?.pincode || '685508') }},
+                  {{ (submittedResumeData?.address?.city || 'Idukki') }},
+                  {{ (submittedResumeData?.address?.state || 'Kerala') }}
+                </span>
+              </div>
+
+              <div class="res-contact-row res-links-row">
+                <span class="res-contact-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                    <rect x="2" y="9" width="4" height="12"></rect>
+                    <circle cx="4" cy="4" r="2"></circle>
+                  </svg>
+                  {{ (submittedResumeData?.linkedin || 'linkedin.com/in/aiswaryamanoj') }}
+                </span>
+                <span class="res-separator">—</span>
+                <span class="res-contact-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                  </svg>
+                  {{ (submittedResumeData?.github || 'github.com/aiswaryamanoj') }}
+                </span>
+                <span class="res-separator">—</span>
+                <span class="res-contact-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  {{ (submittedResumeData?.portfolio || 'Portfolio') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- OBJECTIVE SECTION -->
+          <div class="res-objective-block">
+            <span class="res-objective-title">Objective —</span>
+            <span class="res-objective-text">
+              {{ (submittedResumeData?.objective || 'Computer Science Engineering graduate with knowledge of Python, web development, SQL, and software development, with a keen interest in building scalable and user-friendly web applications. Eager to apply programming and problem-solving skills to develop reliable full-stack solutions using Python and continuously learn and adapt to new technologies.') }}
+            </span>
+          </div>
+
+          <!-- SKILLS SECTION (2 Columns with category headers) -->
+          <div class="res-section">
+            <h2 class="res-section-title">Skills</h2>
+            <div class="res-skills-grid">
+              <div class="res-skills-col">
+                <p class="res-bullet">
+                  <span class="res-dash">–</span>
+                  <strong>Programming Languages:</strong>
+                  {{ (submittedResumeData?.skills?.programmingLanguages || 'Python, JavaScript, HTML, CSS') }}
+                </p>
+                <p class="res-bullet">
+                  <span class="res-dash">–</span>
+                  <strong>Frameworks/Libraries:</strong>
+                  {{ (submittedResumeData?.skills?.frameworks || 'Flask, React') }}
+                </p>
+                <p class="res-bullet">
+                  <span class="res-dash">–</span>
+                  <strong>Concepts:</strong>
+                  {{ (submittedResumeData?.skills?.concepts || 'OOPs, Data Structures, Algorithms, REST APIs, Web Development') }}
+                </p>
+              </div>
+
+              <div class="res-skills-col">
+                <p class="res-bullet">
+                  <span class="res-dash">–</span>
+                  <strong>Databases:</strong>
+                  {{ (submittedResumeData?.skills?.databases || 'SQL, MySQL, MongoDB') }}
+                </p>
+                <p class="res-bullet">
+                  <span class="res-dash">–</span>
+                  <strong>Tools:</strong>
+                  {{ (submittedResumeData?.skills?.tools || 'Git, GitHub, VS Code, Postman') }}
+                </p>
+                <p class="res-bullet">
+                  <span class="res-dash">–</span>
+                  <strong>Soft Skills:</strong>
+                  {{ (submittedResumeData?.skills?.softSkills || 'Problem Solving, Analytical Thinking, Communication, Team Collaboration, Adaptability, Time Management') }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- EXPERIENCE SECTION -->
+          <div class="res-section">
+            <h2 class="res-section-title">Experience</h2>
+            @if (submittedResumeData?.experience && submittedResumeData.experience.length > 0) {
+              @for (exp of submittedResumeData.experience; track $index) {
+                <div class="res-item">
+                  <div class="res-item-header">
+                    <strong class="res-role-title">{{ exp.position }}</strong>
+                    <strong class="res-date-range">
+                      {{ exp.displayDate || (exp.experience?.dateOfJoining + ' – ' + exp.experience?.dateOfResign) }}
+                    </strong>
+                  </div>
+                  <div class="res-subline">
+                    <em>{{ exp.companyName }}</em>
+                  </div>
+                  <div class="res-bullets-list">
+                    @for (bullet of splitLines(exp.description); track bullet) {
+                      <p class="res-bullet">
+                        <span class="res-dash">–</span>
+                        {{ bullet }}
+                      </p>
+                    }
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="res-item">
+                <div class="res-item-header">
+                  <strong class="res-role-title">Full Stack Developer Intern</strong>
+                  <strong class="res-date-range">01 July 2026 – 28 September 2026</strong>
+                </div>
+                <div class="res-subline">
+                  <em>Access Rooms, Kochi</em>
+                </div>
+                <div class="res-bullets-list">
+                  <p class="res-bullet">
+                    <span class="res-dash">–</span>
+                    Developed and enhanced web application features using React and Python.
+                  </p>
+                  <p class="res-bullet">
+                    <span class="res-dash">–</span>
+                    Assisted in building user interfaces and backend functionalities for a B2B Distributor Portal.
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- EDUCATION SECTION -->
+          <div class="res-section">
+            <h2 class="res-section-title">Education</h2>
+            @if (submittedResumeData?.education && submittedResumeData.education.length > 0) {
+              @for (edu of submittedResumeData.education; track $index) {
+                <div class="res-item">
+                  <div class="res-item-header">
+                    <strong class="res-role-title">{{ edu.institution }}</strong>
+                    <strong class="res-date-range">{{ edu.yearRange }}</strong>
+                  </div>
+                  <div class="res-subline">
+                    <em>{{ edu.degree }}</em>
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="res-item">
+                <div class="res-item-header">
+                  <strong class="res-role-title">Amal Jyothi College of Engineering, Kanjirappally</strong>
+                  <strong class="res-date-range">2022 – 2026</strong>
+                </div>
+                <div class="res-subline">
+                  <em>BTech in Computer Science and Engineering — CGPA 7.12</em>
+                </div>
+              </div>
+
+              <div class="res-item">
+                <div class="res-item-header">
+                  <strong class="res-role-title">SMHSS, Marykulam</strong>
+                  <strong class="res-date-range">2019 – 2021</strong>
+                </div>
+                <div class="res-subline">
+                  <em>Higher Secondary Education — 97.7%</em>
+                </div>
+              </div>
+
+              <div class="res-item">
+                <div class="res-item-header">
+                  <strong class="res-role-title">SMHSS, Marykulam</strong>
+                  <strong class="res-date-range">2018 – 2019</strong>
+                </div>
+                <div class="res-subline">
+                  <em>Secondary Education — 97%</em>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- PROJECTS SECTION -->
+          <div class="res-section">
+            <h2 class="res-section-title">Projects</h2>
+            @if (submittedResumeData?.projects && submittedResumeData.projects.length > 0) {
+              @for (proj of submittedResumeData.projects; track $index) {
+                <div class="res-item">
+                  <strong class="res-role-title">{{ proj.title }}</strong>
+                  <div class="res-subline">
+                    <em>Tech: {{ proj.technologies }}</em>
+                  </div>
+                  <p class="res-desc-para">{{ proj.description }}</p>
+                </div>
+              }
+            } @else {
+              <div class="res-item">
+                <strong class="res-role-title">MindTrace: Explainable AI-based Language Model Visualization System</strong>
+                <div class="res-subline">
+                  <em>Tech: Python, PyTorch, Hugging Face Transformers, Flask, JavaScript, HTML, CSS</em>
+                </div>
+                <p class="res-desc-para">
+                  Developed a web-based tool to demonstrate how transformer-based language models make predictions, including a feature to show how word meanings change across different contexts.
+                </p>
+              </div>
+
+              <div class="res-item">
+                <strong class="res-role-title">B2B Distributor Portal</strong>
+                <div class="res-subline">
+                  <em>Tech: React, Python</em>
+                </div>
+                <div class="res-bullets-list">
+                  <p class="res-bullet">
+                    <span class="res-dash">–</span>
+                    Developed and enhanced web application features using React and Python.
+                  </p>
+                  <p class="res-bullet">
+                    <span class="res-dash">–</span>
+                    Assisted in building user interfaces and backend functionalities for a B2B Distributor Portal.
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- CERTIFICATIONS SECTION -->
+          <div class="res-section">
+            <h2 class="res-section-title">Certifications</h2>
+            <div class="res-bullets-list">
+              @if (submittedResumeData?.certifications && submittedResumeData.certifications.length > 0) {
+                @for (cert of submittedResumeData.certifications; track $index) {
+                  <p class="res-bullet">
+                    <span class="res-dash">–</span>
+                    {{ cert.title }}
+                  </p>
+                }
+              } @else {
+                <p class="res-bullet"><span class="res-dash">–</span> SQL: A Practical Introduction for Querying Databases — IBM (Coursera)</p>
+                <p class="res-bullet"><span class="res-dash">–</span> Database Programming with SQL — Oracle</p>
+                <p class="res-bullet"><span class="res-dash">–</span> Crash Course on Python — Google (Coursera)</p>
+                <p class="res-bullet"><span class="res-dash">–</span> Google Cloud DevOps Fundamentals — Whizlabs (Coursera)</p>
+                <p class="res-bullet"><span class="res-dash">–</span> Cloud Infrastructure 2025 Certified Generative AI Professional — Oracle</p>
+              }
+            </div>
+          </div>
+
+          <!-- ACHIEVEMENTS SECTION -->
+          <div class="res-section">
+            <h2 class="res-section-title">Achievements</h2>
+            <div class="res-bullets-list">
+              @if (submittedResumeData?.achievements && submittedResumeData.achievements.length > 0) {
+                @for (ach of submittedResumeData.achievements; track $index) {
+                  <p class="res-bullet">
+                    <span class="res-dash">–</span>
+                    {{ ach.title }}
+                  </p>
+                }
+              } @else {
+                <p class="res-bullet"><span class="res-dash">–</span> NACORE: Published research paper.</p>
+                <p class="res-bullet"><span class="res-dash">–</span> AICERA: Published research paper.</p>
+                <p class="res-bullet"><span class="res-dash">–</span> Smart India Hackathon 2024: Shortlisted finalist; Certificate of Appreciation.</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ======================================================== -->
+    <!-- VIEW 2: ATS OPTIMIZER & JOB DESCRIPTION MATCHER -->
+    <!-- ======================================================== -->
+    @if (activeView === 'ats') {
+      <div class="ats-optimizer-view animate-fade-in no-print">
+        <!-- ATS Top Header Banner -->
+        <div class="ats-hero-banner">
+          <div>
+            <h2 class="ats-title">🎯 ATS Scanner &amp; Resume Keyword Optimizer</h2>
+            <p class="ats-subtitle">
+              Paste any Job Description or select a preset to analyze keyword compatibility and instantly boost your score.
+            </p>
+          </div>
+          @if (atsResult) {
+            <div class="ats-score-badge" [style.background-color]="atsResult.ratingColor + '15'" [style.border-color]="atsResult.ratingColor">
+              <div class="score-circle" [style.border-color]="atsResult.ratingColor" [style.color]="atsResult.ratingColor">
+                {{ atsResult.score }}%
+              </div>
+              <div>
+                <span class="score-status" [style.color]="atsResult.ratingColor">{{ atsResult.rating }} Match</span>
+                <span class="score-subtext">ATS Compatibility</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (optimizationMessage) {
+          <div class="opt-alert animate-slide-down">
+            {{ optimizationMessage }}
+          </div>
+        }
+
+        <!-- Job Description Input Card -->
+        <div class="ats-input-card">
+          <div class="preset-row">
+            <span class="preset-label">Quick Job Presets:</span>
+            @for (preset of sampleJdPresets; track preset.label; let i = $index) {
+              <button
+                type="button"
+                class="btn-preset-chip"
+                (click)="loadSampleJd(i)"
+              >
+                {{ preset.label }}
+              </button>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="jdInput" class="form-label">
+              Paste Target Job Description (JD):
+            </label>
+            <textarea
+              id="jdInput"
+              rows="6"
+              [(ngModel)]="jobDescription"
+              placeholder="Paste job posting text here to analyze keyword matches, missing skills, and scoring..."
+              class="form-control jd-textarea"
+            ></textarea>
+          </div>
+
+          <div class="ats-actions-bar">
+            <button
+              type="button"
+              class="btn-calculate-ats"
+              (click)="runAtsAnalysis()"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Recalculate ATS Score
+            </button>
+
+            <button
+              type="button"
+              class="btn-auto-optimize"
+              (click)="optimizeResumeForJd()"
+              title="Automatically infuse missing keywords into skills & objective"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              ⚡ 1-Click Optimize Resume for this JD
+            </button>
+          </div>
+        </div>
+
+        <!-- ATS Results Breakdown -->
+        @if (atsResult) {
+          <div class="ats-results-grid">
+            <!-- Metrics Column -->
+            <div class="ats-metric-card">
+              <h3 class="ats-card-title">Score Breakdown</h3>
+              <div class="metric-bars">
+                <div class="metric-bar-item">
+                  <div class="metric-bar-label">
+                    <span>Keyword Match</span>
+                    <strong>{{ atsResult.breakdown.keywordMatch }}%</strong>
+                  </div>
+                  <div class="bar-track">
+                    <div class="bar-fill" [style.width.%]="atsResult.breakdown.keywordMatch"></div>
+                  </div>
+                </div>
+
+                <div class="metric-bar-item">
+                  <div class="metric-bar-label">
+                    <span>Skills Alignment</span>
+                    <strong>{{ atsResult.breakdown.skillsAlignment }}%</strong>
+                  </div>
+                  <div class="bar-track">
+                    <div class="bar-fill" [style.width.%]="atsResult.breakdown.skillsAlignment"></div>
+                  </div>
+                </div>
+
+                <div class="metric-bar-item">
+                  <div class="metric-bar-label">
+                    <span>Experience &amp; Action Verbs</span>
+                    <strong>{{ atsResult.breakdown.experienceImpact }}%</strong>
+                  </div>
+                  <div class="bar-track">
+                    <div class="bar-fill" [style.width.%]="atsResult.breakdown.experienceImpact"></div>
+                  </div>
+                </div>
+
+                <div class="metric-bar-item">
+                  <div class="metric-bar-label">
+                    <span>Format Completeness</span>
+                    <strong>{{ atsResult.breakdown.formatCompleteness }}%</strong>
+                  </div>
+                  <div class="bar-track">
+                    <div class="bar-fill" [style.width.%]="atsResult.breakdown.formatCompleteness"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matched & Missing Keywords Tags -->
+              <div class="keywords-analysis-block">
+                <div class="kw-group">
+                  <h4 class="kw-header text-success">
+                    ✓ Matched Keywords ({{ atsResult.matchedKeywords.length }})
+                  </h4>
+                  <div class="kw-tags-wrap">
+                    @for (kw of atsResult.matchedKeywords; track kw) {
+                      <span class="kw-tag matched">{{ kw }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="kw-group">
+                  <h4 class="kw-header text-danger">
+                    ✕ Missing Keywords from JD ({{ atsResult.missingKeywords.length }})
+                  </h4>
+                  <div class="kw-tags-wrap">
+                    @for (kw of atsResult.missingKeywords; track kw) {
+                      <span class="kw-tag missing">{{ kw }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Suggestions Column -->
+            <div class="ats-suggestions-card">
+              <h3 class="ats-card-title">💡 Targeted ATS Improvement Suggestions</h3>
+              <div class="suggestions-list">
+                @for (sug of atsResult.suggestions; track sug.title) {
+                  <div class="suggestion-item" [class]="'sug-' + sug.type">
+                    <div class="sug-header">
+                      <span class="sug-title">{{ sug.title }}</span>
+                      <span class="sug-gain">{{ sug.potentialGain }}</span>
+                    </div>
+                    <p class="sug-desc">{{ sug.description }}</p>
+                  </div>
+                }
+              </div>
+
+              <div class="sug-footer-actions">
+                <button type="button" class="btn-apply-suggestion" (click)="optimizeResumeForJd()">
+                  Apply Recommendations to Resume
+                </button>
+                <button type="button" class="btn-view-resume-link" (click)="activeView = 'preview'">
+                  View Formatted Resume &rarr;
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ======================================================== -->
+    <!-- VIEW 3: REACTIVE FORM EDITOR -->
+    <!-- ======================================================== -->
+    @if (activeView === 'form') {
+      <div class="form-container no-print">
+        <div class="form-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Candidate Resume Details</h2>
+              <p class="card-subtitle">Fill in the required information to generate your structured resume.</p>
+            </div>
+            <div class="badge-status" [class.badge-valid]="resumeForm.valid" [class.badge-pending]="resumeForm.invalid">
+              <span class="status-dot"></span>
+              {{ resumeForm.valid ? 'Form Ready to Submit' : 'Fields Incomplete' }}
+            </div>
+          </div>
+
+          <form [formGroup]="resumeForm" (ngSubmit)="onSubmit()" novalidate>
+
+            <!-- JOB DESCRIPTION & ATS OPTIMIZATION CARD (TOP OF FORM) -->
+            <div class="form-section jd-form-section">
+              <div class="section-title-wrap section-header-split">
+                <div class="flex-align">
+                  <span class="section-step">🎯</span>
+                  <div>
+                    <h3 class="section-title">Target Job Description &amp; ATS Resume Optimizer</h3>
+                    <p class="section-desc">Paste the job posting here to auto-tune your skills, keywords, and ATS match score</p>
+                  </div>
+                </div>
+                @if (atsResult) {
+                  <div class="ats-mini-pill" [style.background-color]="atsResult.ratingColor">
+                    ATS Match: {{ atsResult.score }}% ({{ atsResult.rating }})
+                  </div>
+                }
+              </div>
+
+              @if (optimizationMessage) {
+                <div class="opt-alert animate-slide-down" style="margin-bottom: 1rem;">
+                  {{ optimizationMessage }}
+                </div>
+              }
+
+              <!-- Preset chips -->
+              <div class="preset-row">
+                <span class="preset-label">Quick Presets:</span>
+                @for (preset of sampleJdPresets; track preset.label; let i = $index) {
+                  <button
+                    type="button"
+                    class="btn-preset-chip"
+                    (click)="loadSampleJd(i)"
+                  >
+                    {{ preset.label }}
+                  </button>
+                }
+              </div>
+
+              <!-- Job description textarea -->
+              <div class="form-group">
+                <label for="formJdInput" class="form-label">
+                  Paste Target Job Description (JD):
+                </label>
+                <textarea
+                  id="formJdInput"
+                  rows="4"
+                  [(ngModel)]="jobDescription"
+                  [ngModelOptions]="{standalone: true}"
+                  placeholder="Paste target job description text here (e.g., Python, React, SQL, REST APIs, Git, Docker...)"
+                  class="form-control jd-textarea"
+                ></textarea>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="ats-actions-bar">
+                <button
+                  type="button"
+                  class="btn-auto-optimize"
+                  (click)="optimizeResumeForJd()"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  ⚡ 1-Click Optimize Resume for this JD
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-calculate-ats"
+                  (click)="activeView = 'ats'"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  View Full ATS Keyword Breakdown
+                </button>
+              </div>
+            </div>
+
+            <!-- CANDIDATE PICTURE SECTION (Optional) -->
+            <div class="form-section picture-section">
+              <div class="section-title-wrap">
+                <span class="section-step">📷</span>
+                <div>
+                  <h3 class="section-title">
+                    Candidate Picture
+                    <span class="optional-tag">Optional</span>
+                  </h3>
+                  <p class="section-desc">Upload or change profile headshot</p>
+                </div>
+              </div>
+
+              <div class="photo-upload-container">
+                <div class="avatar-preview-box">
+                  @if (candidatePicturePreview) {
+                    <img [src]="candidatePicturePreview" alt="Candidate Headshot" class="avatar-img" />
+                  } @else {
+                    <div class="avatar-placeholder">No Photo</div>
+                  }
+                </div>
+
+                <div class="photo-upload-controls">
+                  <label for="candidatePictureInput" class="btn-upload-label">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Choose Photo
+                  </label>
+                  <input
+                    type="file"
+                    id="candidatePictureInput"
+                    accept="image/*"
+                    class="file-input-hidden"
+                    (change)="onPictureSelected($event)"
+                  />
+                  @if (candidatePicturePreview) {
+                    <button type="button" class="btn-remove-photo" (click)="removePicture()">
+                      Remove Photo
+                    </button>
+                  }
+                  <span class="photo-note">Square headshot (JPG, PNG)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 1: Personal Details & Contact -->
+            <div class="form-section">
+              <div class="section-title-wrap">
+                <span class="section-step">1</span>
+                <div>
+                  <h3 class="section-title">Personal Information &amp; Social Links</h3>
+                  <p class="section-desc">Identification, contact credentials, and portfolio</p>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <!-- First Name -->
+                <div class="form-group" [class.has-error]="isFieldInvalid('firstName')">
+                  <label for="firstName" class="form-label">First Name <span class="required-star">*</span></label>
+                  <input type="text" id="firstName" formControlName="firstName" placeholder="e.g. Aiswarya" class="form-control" />
+                  @if (isFieldInvalid('firstName')) {
+                    <div class="field-error"><span>First Name is required</span></div>
+                  }
+                </div>
+
+                <!-- Last Name -->
+                <div class="form-group" [class.has-error]="isFieldInvalid('lastName')">
+                  <label for="lastName" class="form-label">Last Name <span class="required-star">*</span></label>
+                  <input type="text" id="lastName" formControlName="lastName" placeholder="e.g. Manoj" class="form-control" />
+                  @if (isFieldInvalid('lastName')) {
+                    <div class="field-error"><span>Last Name is required</span></div>
+                  }
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="form-group" [class.has-error]="isFieldInvalid('dob')">
+                  <label for="dob" class="form-label">Date of Birth <span class="required-star">*</span></label>
+                  <input type="date" id="dob" formControlName="dob" class="form-control" />
+                  @if (isFieldInvalid('dob')) {
+                    <div class="field-error"><span>Date of Birth is required</span></div>
+                  }
+                </div>
+
+                <!-- Email -->
+                <div class="form-group" [class.has-error]="isFieldInvalid('email')">
+                  <label for="email" class="form-label">Email Address <span class="required-star">*</span></label>
+                  <input type="email" id="email" formControlName="email" placeholder="e.g. aiswaryamanoj061@gmail.com" class="form-control" />
+                  @if (isFieldInvalid('email')) {
+                    <div class="field-error"><span>Valid email is required</span></div>
+                  }
+                </div>
+
+                <!-- Phone Number -->
+                <div class="form-group" [class.has-error]="isFieldInvalid('phone')">
+                  <label for="phone" class="form-label">Phone Number <span class="required-star">*</span></label>
+                  <input type="tel" id="phone" formControlName="phone" placeholder="e.g. +91 7012370686" class="form-control" />
+                  @if (isFieldInvalid('phone')) {
+                    <div class="field-error"><span>Phone number is required</span></div>
+                  }
+                </div>
+
+                <!-- LinkedIn -->
+                <div class="form-group">
+                  <label for="linkedin" class="form-label">LinkedIn Profile</label>
+                  <input type="text" id="linkedin" formControlName="linkedin" placeholder="e.g. linkedin.com/in/aiswaryamanoj" class="form-control" />
+                </div>
+
+                <!-- GitHub -->
+                <div class="form-group">
+                  <label for="github" class="form-label">GitHub Profile</label>
+                  <input type="text" id="github" formControlName="github" placeholder="e.g. github.com/aiswaryamanoj" class="form-control" />
+                </div>
+
+                <!-- Portfolio -->
+                <div class="form-group">
+                  <label for="portfolio" class="form-label">Portfolio URL / Name</label>
+                  <input type="text" id="portfolio" formControlName="portfolio" placeholder="e.g. Portfolio" class="form-control" />
+                </div>
+              </div>
+
+              <!-- Career Objective -->
+              <div class="form-group full-grid-width" style="margin-top: 1.25rem;">
+                <label for="objective" class="form-label">Career Objective</label>
+                <textarea id="objective" formControlName="objective" rows="3" class="form-control"></textarea>
+              </div>
+
+              <!-- Gender -->
+              <div class="form-group gender-group" [class.has-error]="isFieldInvalid('gender')">
+                <label class="form-label">Gender <span class="required-star">*</span></label>
+                <div class="radio-pill-group">
+                  @for (gender of genderOptions; track gender) {
+                    <label class="radio-pill-label" [class.active]="resumeForm.get('gender')?.value === gender">
+                      <input type="radio" name="gender" [value]="gender" formControlName="gender" class="radio-input" />
+                      <span class="radio-circle"></span>
+                      <span class="radio-text">{{ gender }}</span>
+                    </label>
+                  }
+                </div>
+                @if (isFieldInvalid('gender')) {
+                  <div class="field-error"><span>Please select gender</span></div>
+                }
+              </div>
+
+              <!-- Languages Spoken -->
+              <div class="form-group languages-group" formGroupName="languages">
+                <label class="form-label">Languages Spoken</label>
+                <div class="checkbox-pill-group">
+                  @for (lang of availableLanguages; track lang) {
+                    <label class="checkbox-pill-label" [class.checked]="languagesGroup.get(lang)?.value">
+                      <input type="checkbox" [formControlName]="lang" class="checkbox-input" />
+                      <span class="custom-checkbox">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </span>
+                      <span class="checkbox-text">{{ lang }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- SKILLS FORM GROUP -->
+            <div class="form-section" formGroupName="skills">
+              <div class="section-title-wrap">
+                <span class="section-step">⚡</span>
+                <div>
+                  <h3 class="section-title">Categorized Technical &amp; Soft Skills</h3>
+                  <p class="section-desc">Appears in 2 clean columns matching the target resume layout</p>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Programming Languages</label>
+                  <input type="text" formControlName="programmingLanguages" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Databases</label>
+                  <input type="text" formControlName="databases" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Frameworks / Libraries</label>
+                  <input type="text" formControlName="frameworks" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Tools &amp; Platforms</label>
+                  <input type="text" formControlName="tools" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Key Concepts</label>
+                  <input type="text" formControlName="concepts" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Soft Skills</label>
+                  <input type="text" formControlName="softSkills" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: Address Form Group -->
+            <div class="form-section" formGroupName="address">
+              <div class="section-title-wrap">
+                <span class="section-step">2</span>
+                <div>
+                  <h3 class="section-title">Address Information</h3>
+                  <p class="section-desc">Residential contact location (includes 6-digit Pincode verification)</p>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group" [class.has-error]="isFieldInvalid('houseNo', addressGroup)">
+                  <label for="houseNo" class="form-label">House / Flat No <span class="required-star">*</span></label>
+                  <input type="text" id="houseNo" formControlName="houseNo" placeholder="e.g. Kunnel House" class="form-control" />
+                  @if (isFieldInvalid('houseNo', addressGroup)) {
+                    <div class="field-error"><span>House No is required</span></div>
+                  }
+                </div>
+
+                <div class="form-group" [class.has-error]="isFieldInvalid('street', addressGroup)">
+                  <label for="street" class="form-label">Street / Locality <span class="required-star">*</span></label>
+                  <input type="text" id="street" formControlName="street" placeholder="e.g. Kattappana" class="form-control" />
+                  @if (isFieldInvalid('street', addressGroup)) {
+                    <div class="field-error"><span>Street is required</span></div>
+                  }
+                </div>
+
+                <div class="form-group" [class.has-error]="isFieldInvalid('city', addressGroup)">
+                  <label for="city" class="form-label">City <span class="required-star">*</span></label>
+                  <input type="text" id="city" formControlName="city" placeholder="e.g. Idukki" class="form-control" />
+                  @if (isFieldInvalid('city', addressGroup)) {
+                    <div class="field-error"><span>City is required</span></div>
+                  }
+                </div>
+
+                <div class="form-group" [class.has-error]="isFieldInvalid('state', addressGroup)">
+                  <label for="state" class="form-label">State <span class="required-star">*</span></label>
+                  <input type="text" id="state" formControlName="state" placeholder="e.g. Kerala" class="form-control" />
+                  @if (isFieldInvalid('state', addressGroup)) {
+                    <div class="field-error"><span>State is required</span></div>
+                  }
+                </div>
+
+                <div class="form-group" [class.has-error]="isFieldInvalid('pincode', addressGroup)">
+                  <label for="pincode" class="form-label">Pincode (6 Digits) <span class="required-star">*</span></label>
+                  <input type="text" id="pincode" formControlName="pincode" placeholder="e.g. 685508" maxlength="6" class="form-control" />
+                  @if (isFieldInvalid('pincode', addressGroup)) {
+                    <div class="field-error">
+                      <span>{{ addressGroup.get('pincode')?.errors?.['invalidPincode']?.message || 'Pincode must be exactly 6 digits' }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 3: Experience Form Array (Optional & Dynamic) -->
+            <div class="form-section experience-section">
+              <div class="section-title-wrap section-header-split">
+                <div class="flex-align">
+                  <span class="section-step">3</span>
+                  <div>
+                    <h3 class="section-title">
+                      Work Experience
+                      <span class="optional-tag">Optional</span>
+                    </h3>
+                    <p class="section-desc">Roles, positions, and joining/resign dates</p>
+                  </div>
+                </div>
+
+                @if (!showExperience) {
+                  <button type="button" class="btn-action-primary" (click)="toggleExperienceSection()">
+                    + Add Work Experience
+                  </button>
+                }
+              </div>
+
+              @if (showExperience) {
+                <div class="experience-list-container" formArrayName="experience">
+                  @for (expControl of experience.controls; track $index) {
+                    <div class="item-card animate-fade-in" [formGroupName]="$index">
+                      <div class="item-card-header">
+                        <span class="exp-index">#{{ $index + 1 }} Experience</span>
+                        <button type="button" class="btn-delete-item" (click)="removeExperience($index)">
+                          Delete Experience
+                        </button>
+                      </div>
+
+                      <div class="form-grid-2">
+                        <div class="form-group" [class.has-error]="isFieldInvalid('position', expControl)">
+                          <label class="form-label">Role / Position <span class="required-star">*</span></label>
+                          <input type="text" formControlName="position" placeholder="e.g. Full Stack Developer Intern" class="form-control" />
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid('companyName', expControl)">
+                          <label class="form-label">Company &amp; Location <span class="required-star">*</span></label>
+                          <input type="text" formControlName="companyName" placeholder="e.g. Access Rooms, Kochi" class="form-control" />
+                        </div>
+
+                        <div class="form-group full-grid-width">
+                          <label class="form-label">Display Date (e.g. 01 July 2026 – 28 September 2026)</label>
+                          <input type="text" formControlName="displayDate" class="form-control" />
+                        </div>
+
+                        <div class="form-group full-grid-width">
+                          <label class="form-label">Key Responsibilities / Bullets (One per line)</label>
+                          <textarea formControlName="description" rows="3" class="form-control"></textarea>
+                        </div>
+                      </div>
+
+                      <!-- Nested Experience Group -->
+                      <div class="nested-sub-group" formGroupName="experience">
+                        <div class="nested-heading"><span>Tenure Controls</span></div>
+                        <div class="form-grid-2">
+                          <div class="form-group">
+                            <label class="form-label">Date of Joining</label>
+                            <input type="date" formControlName="dateOfJoining" class="form-control" />
+                          </div>
+                          <div class="form-group">
+                            <label class="form-label">Date of Resign</label>
+                            <input type="date" formControlName="dateOfResign" class="form-control" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="add-more-row">
+                    <button type="button" class="btn-add-more" (click)="addExperience()">+ Add Another Experience</button>
+                    <button type="button" class="btn-hide-section" (click)="toggleExperienceSection()">Clear Experience</button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- SECTION 4: Education (Dynamic FormArray) -->
+            <div class="form-section education-section">
+              <div class="section-title-wrap section-header-split">
+                <div class="flex-align">
+                  <span class="section-step">4</span>
+                  <div>
+                    <h3 class="section-title">Education</h3>
+                    <p class="section-desc">Degrees, schools, colleges, and passing years</p>
+                  </div>
+                </div>
+
+                @if (!showEducation) {
+                  <button type="button" class="btn-action-primary" (click)="toggleEducationSection()">
+                    + Add Education
+                  </button>
+                }
+              </div>
+
+              @if (showEducation) {
+                <div class="dynamic-list-container" formArrayName="education">
+                  @for (eduControl of education.controls; track $index) {
+                    <div class="item-card animate-fade-in" [formGroupName]="$index">
+                      <div class="item-card-header">
+                        <span class="exp-index">#{{ $index + 1 }} Education</span>
+                        <button type="button" class="btn-delete-item" (click)="removeEducation($index)">Delete</button>
+                      </div>
+
+                      <div class="form-grid-2">
+                        <div class="form-group">
+                          <label class="form-label">Institution / College Name <span class="required-star">*</span></label>
+                          <input type="text" formControlName="institution" placeholder="e.g. Amal Jyothi College of Engineering" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                          <label class="form-label">Year Range (e.g. 2022 – 2026) <span class="required-star">*</span></label>
+                          <input type="text" formControlName="yearRange" class="form-control" />
+                        </div>
+
+                        <div class="form-group full-grid-width">
+                          <label class="form-label">Degree &amp; Grade Details (e.g. BTech in CSE — CGPA 7.12) <span class="required-star">*</span></label>
+                          <input type="text" formControlName="degree" class="form-control" />
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="add-more-row">
+                    <button type="button" class="btn-add-more" (click)="addEducation()">+ Add Another Education</button>
+                    <button type="button" class="btn-hide-section" (click)="toggleEducationSection()">Clear Education</button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- SECTION 5: Projects (Dynamic FormArray) -->
+            <div class="form-section projects-section">
+              <div class="section-title-wrap section-header-split">
+                <div class="flex-align">
+                  <span class="section-step">5</span>
+                  <div>
+                    <h3 class="section-title">Projects</h3>
+                    <p class="section-desc">Key development projects, tech stack, and summaries</p>
+                  </div>
+                </div>
+
+                @if (!showProjects) {
+                  <button type="button" class="btn-action-primary" (click)="toggleProjectsSection()">
+                    + Add Projects
+                  </button>
+                }
+              </div>
+
+              @if (showProjects) {
+                <div class="dynamic-list-container" formArrayName="projects">
+                  @for (projControl of projects.controls; track $index) {
+                    <div class="item-card animate-fade-in" [formGroupName]="$index">
+                      <div class="item-card-header">
+                        <span class="exp-index">#{{ $index + 1 }} Project</span>
+                        <button type="button" class="btn-delete-item" (click)="removeProject($index)">Delete</button>
+                      </div>
+
+                      <div class="form-grid-2">
+                        <div class="form-group">
+                          <label class="form-label">Project Title <span class="required-star">*</span></label>
+                          <input type="text" formControlName="title" placeholder="e.g. MindTrace..." class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                          <label class="form-label">Tech Stack <span class="required-star">*</span></label>
+                          <input type="text" formControlName="technologies" placeholder="e.g. Python, PyTorch, Flask" class="form-control" />
+                        </div>
+
+                        <div class="form-group full-grid-width">
+                          <label class="form-label">Description <span class="required-star">*</span></label>
+                          <textarea formControlName="description" rows="3" class="form-control"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="add-more-row">
+                    <button type="button" class="btn-add-more" (click)="addProject()">+ Add Another Project</button>
+                    <button type="button" class="btn-hide-section" (click)="toggleProjectsSection()">Clear Projects</button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- SECTION 6: Certifications (Dynamic FormArray) -->
+            <div class="form-section certifications-section">
+              <div class="section-title-wrap section-header-split">
+                <div class="flex-align">
+                  <span class="section-step">6</span>
+                  <div>
+                    <h3 class="section-title">Certifications</h3>
+                    <p class="section-desc">Courses, credentials, and organizations</p>
+                  </div>
+                </div>
+
+                @if (!showCertifications) {
+                  <button type="button" class="btn-action-primary" (click)="toggleCertificationsSection()">
+                    + Add Certifications
+                  </button>
+                }
+              </div>
+
+              @if (showCertifications) {
+                <div class="dynamic-list-container" formArrayName="certifications">
+                  @for (certControl of certifications.controls; track $index) {
+                    <div class="item-card animate-fade-in" [formGroupName]="$index">
+                      <div class="item-card-header">
+                        <span class="exp-index">#{{ $index + 1 }} Certificate</span>
+                        <button type="button" class="btn-delete-item" (click)="removeCertification($index)">Delete</button>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label">Certificate Name &amp; Issuer</label>
+                        <input type="text" formControlName="title" placeholder="e.g. Database Programming with SQL — Oracle" class="form-control" />
+                      </div>
+                    </div>
+                  }
+
+                  <div class="add-more-row">
+                    <button type="button" class="btn-add-more" (click)="addCertification()">+ Add Another</button>
+                    <button type="button" class="btn-hide-section" (click)="toggleCertificationsSection()">Clear Certifications</button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- SECTION 7: Achievements (Dynamic FormArray) -->
+            <div class="form-section achievements-section">
+              <div class="section-title-wrap section-header-split">
+                <div class="flex-align">
+                  <span class="section-step">7</span>
+                  <div>
+                    <h3 class="section-title">Achievements</h3>
+                    <p class="section-desc">Hackathons, publications, and awards</p>
+                  </div>
+                </div>
+
+                @if (!showAchievements) {
+                  <button type="button" class="btn-action-primary" (click)="toggleAchievementsSection()">
+                    + Add Achievements
+                  </button>
+                }
+              </div>
+
+              @if (showAchievements) {
+                <div class="dynamic-list-container" formArrayName="achievements">
+                  @for (achControl of achievements.controls; track $index) {
+                    <div class="item-card animate-fade-in" [formGroupName]="$index">
+                      <div class="item-card-header">
+                        <span class="exp-index">#{{ $index + 1 }} Achievement</span>
+                        <button type="button" class="btn-delete-item" (click)="removeAchievement($index)">Delete</button>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label">Achievement / Recognition Details</label>
+                        <input type="text" formControlName="title" placeholder="e.g. NACORE: Published research paper." class="form-control" />
+                      </div>
+                    </div>
+                  }
+
+                  <div class="add-more-row">
+                    <button type="button" class="btn-add-more" (click)="addAchievement()">+ Add Another</button>
+                    <button type="button" class="btn-hide-section" (click)="toggleAchievementsSection()">Clear Achievements</button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Form Action Buttons Bar -->
+            <div class="form-actions-bar">
+              <button type="submit" id="submit-resume-btn" class="btn-submit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Submit &amp; Generate Resume
+              </button>
+
+              <button type="button" id="reset-form-btn" class="btn-reset" (click)="resetForm()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+                Reset Form
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+  </main>
+</div>
